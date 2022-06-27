@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cardview_dark_background"
+    tools:context=".SearchFragment">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_centerVertical="true">
+
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:id="@+id/search_text"
+            android:layout_alignParentTop="true"
+            android:hint="Search"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+        />
+
+        <Button
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_gravity="right"
+            android:id="@+id/search_btn"
+            android:background="@android:drawable/ic_menu_search"
+            />
+    </FrameLayout>
+
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/recyclerView_search"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_below="@id/search_text"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:layout_marginBottom="8dp" />-->
+
+</RelativeLayout>
