@@ -1,14 +1,136 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProfileFragment">
+    tools:context=".ProfileFragment"
+    android:background="@color/cardview_dark_background">
 
-    <!-- TODO: Update blank fragment layout -->
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:id="@+id/transactions_btn"
+        android:layout_marginTop="24dp"
+        android:layout_marginLeft="8dp"
+        android:text="Transactions"
+        android:textSize="16dp"
+        android:layout_alignParentTop="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:id="@+id/edit_btn"
+        android:layout_marginTop="24dp"
+        android:layout_marginRight="12dp"
+        android:layout_alignParentEnd="true"
+        android:text="🖊️ Edit"
+        android:textSize="16dp"
+        android:layout_alignParentTop="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:id="@+id/logout_btn"
+        android:layout_marginTop="24dp"
+        android:layout_marginRight="12dp"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/edit_btn"
+        android:text="Logout"
+        android:textSize="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:id="@+id/name_text"
+        android:text="Name:"
+        android:textColor="@color/white"
+        android:layout_marginTop="50dp"
+        android:textSize="24dp"
+        android:layout_below="@id/logout_btn"/>
+
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="30dp"
+        android:id="@+id/name_edit"
+        android:textColor="@color/white"
+        android:text="Name"
+        android:textSize="24dp"
+        android:layout_below="@id/logout_btn"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@id/name_text"
+        />
 
-</FrameLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:id="@+id/email_text"
+        android:text="Email:"
+        android:textColor="@color/white"
+        android:layout_marginTop="42dp"
+        android:textSize="24dp"
+        android:layout_below="@id/name_text"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:id="@+id/email_edit"
+        android:textColor="@color/white"
+        android:text="Email"
+        android:inputType="textEmailAddress"
+        android:textSize="24dp"
+        android:layout_below="@id/name_edit"
+        android:layout_marginTop="42dp"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@id/email_text"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:id="@+id/passwd_text"
+        android:text="Password:"
+        android:textColor="@color/white"
+        android:layout_marginTop="42dp"
+        android:textSize="24dp"
+        android:layout_below="@id/email_text"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/passwd_edit"
+        android:textColor="@color/white"
+        android:text="Password"
+        android:inputType="textPassword"
+        android:textSize="24dp"
+        android:layout_below="@id/email_edit"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@id/passwd_text"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:id="@+id/avail_bal_text"
+        android:text="Available Bal.:"
+        android:textColor="@color/white"
+        android:layout_marginTop="42dp"
+        android:textSize="24dp"
+        android:layout_below="@id/passwd_text"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/avail_bal_edit"
+        android:textColor="@color/white"
+        android:text="3,00,000"
+        android:textSize="24dp"
+        android:editable="false"
+        android:layout_below="@id/passwd_edit"
+        android:layout_marginTop="42dp"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@id/avail_bal_text"
+        />
+
+</RelativeLayout>

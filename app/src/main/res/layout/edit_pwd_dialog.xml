@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="300dp">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/old_pwd"
+        android:hint="Old Password"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="28dp"
+        />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/new_pwd_1"
+        android:hint="New Password"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="28dp"
+        android:layout_below="@id/old_pwd"
+        />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/new_pwd_2"
+        android:hint="Confirm New Password"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="28dp"
+        android:layout_below="@id/new_pwd_1"
+        />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/submit_btn"
+        android:layout_alignParentBottom="true"
+        android:text="Submit"
+        android:textSize="20dp"
+        />
+
+</RelativeLayout>
