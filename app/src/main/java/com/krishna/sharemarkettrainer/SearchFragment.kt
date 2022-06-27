@@ -62,12 +62,10 @@ class SearchFragment : Fragment() {
             }
         })
 
-        Toast.makeText(view.context,refUsers?.child("name").toString(),Toast.LENGTH_SHORT).show()
         var searchBtn = view?.findViewById<Button>(R.id.search_btn)
-        Log.i("User","username")
         searchBtn?.setOnClickListener({
             searchString = searchText?.text.toString()
-            
+
         })
         return view
     }

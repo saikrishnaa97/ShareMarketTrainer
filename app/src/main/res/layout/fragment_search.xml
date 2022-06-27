@@ -7,6 +7,7 @@
     android:background="@color/cardview_dark_background"
     tools:context=".SearchFragment">
     <FrameLayout
+        android:id="@+id/search_frame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -35,12 +36,12 @@
             />
     </FrameLayout>
 
-<!--    <androidx.recyclerview.widget.RecyclerView-->
-<!--        android:id="@+id/recyclerView_search"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:layout_below="@id/search_text"-->
-<!--        android:layout_marginTop="8dp"-->
-<!--        android:layout_marginBottom="8dp" />-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView_search"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/search_frame"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
 
 </RelativeLayout>
