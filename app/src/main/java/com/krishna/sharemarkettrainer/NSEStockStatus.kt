@@ -36,9 +36,9 @@ data class Info(
     val tempSuspendedSeries: List<String>
 )
 data class IntraDayHighLow(
-    val max: Int,
-    val min: Int,
-    val value: Int
+    val max: Double,
+    val min: Double,
+    val value: Double
 )
 data class Metadata(
     val industry: String,
@@ -60,25 +60,25 @@ data class PreOpenMarket(
     val preopen: List<Preopen>
 )
 data class PriceInfo(
-    val basePrice: Int,
-    val change: Int,
-    val close: Int,
+    val basePrice: Double,
+    val change: Double,
+    val close: Double,
     val intraDayHighLow: IntraDayHighLow,
-    val lastPrice: Int,
+    val lastPrice: Double,
     val lowerCP: String,
-    val `open`: Int,
-    val pChange: Int,
+    val open: Double,
+    val pChange: Double,
     val pPriceBand: String,
-    val previousClose: Int,
+    val previousClose: Double,
     val upperCP: String,
-    val vwap: Int,
+    val vwap: Double,
     val weekHighLow: WeekHighLow
 )
 data class SecurityInfo(
     val boardStatus: String,
     val classOfShare: String,
     val derivatives: String,
-    val faceValue: Int,
+    val faceValue: Double,
     val issuedSize: String,
     val sessionNo: String,
     val slb: String,
@@ -87,9 +87,9 @@ data class SecurityInfo(
     val tradingStatus: String
 )
 data class WeekHighLow(
-    val max: Int,
+    val max: Double,
     val maxDate: Any,
-    val min: Int,
+    val min: Double,
     val minDate: Any,
-    val value: Int
+    val value: Double
 )
