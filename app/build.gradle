@@ -29,6 +29,17 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+    }
 }
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
@@ -58,6 +69,14 @@ dependencies {
     implementation 'com.rengwuxian.materialedittext:library:2.1.4'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation("androidx.work:work-runtime-ktx:2.6.0")
+    implementation("com.github.pnpninja:nsetools:1.0-RELEASE")
+    implementation 'androidx.biometric:biometric:1.0.1'
+}
+
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute module('org.hamcrest:hamcrest-core:1.1') with module('junit:junit:4.10')
+    }
 }
 
 apply plugin: 'com.google.gms.google-services'
