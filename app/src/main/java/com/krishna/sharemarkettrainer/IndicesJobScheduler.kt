@@ -62,7 +62,17 @@ class IndicesJobScheduler(context: Context, bse_live: TextView, nse_live: TextVi
                 for(i in responseBody?.data!!){
                     if (i.name.equals("NIFTY 50")){
                         Log.i("Response",i.toString())
-                        nse_live.text = "NIFTY 50:- "+i.lastPrice+"\n% Change:- "+i.pChange+"%"
+                        var percChange = ""
+                        if (i.pChange.toDouble() > 0){
+                            percChange = "+"+i.pChange
+                        }
+                        else if(i.pChange.toDouble() < 0){
+                            percChange = "-"+i.pChange
+                        }
+                        else {
+                            percChange = i.pChange
+                        }
+                        nse_live.text = "NIFTY 50:- "+i.lastPrice+"\n% Change:- "+percChange+"%"
                     }
                 }
             }

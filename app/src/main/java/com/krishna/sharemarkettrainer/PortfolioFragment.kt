@@ -14,6 +14,9 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -34,6 +37,8 @@ class PortfolioFragment : Fragment() {
 
     var inflater: LayoutInflater? = null
     var container : ViewGroup? = null
+    var cookie : String? = ""
+    val nseApi = NSERetrofitHelper.getInstance().create(NSEStockRestClient::class.java)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,6 +50,13 @@ class PortfolioFragment : Fragment() {
         var portfolioRecyclerView = view.findViewById<RecyclerView>(R.id.portfolio_recycler)
         firebaseUser = FirebaseAuth.getInstance().currentUser
         refUsers = FirebaseDatabase.getInstance().reference.child("Trades").child(firebaseUser!!.uid)
+
+
+        //get cookie
+        if (cookie.equals("")){
+            cookie = getCookieFromRequest()
+        }
+
         refUsers?.addValueEventListener(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 var stockTradesList = ArrayList<StockTradeDataItem>()
@@ -55,10 +67,10 @@ class PortfolioFragment : Fragment() {
                     Log.i("tradesData",tradeData.toString())
                     stockTradesList.add(tradeData!!)
                 }
-                val portfolioAdapter = PortfolioAdapter(requireContext(),stockTradesList!!)
+                val portfolioAdapter = PortfolioAdapter(requireContext(),stockTradesList!!,cookie!!)
                 portfolioRecyclerView.adapter = portfolioAdapter
                 val timer = Timer()
-                var portfolioScheduler = PortfolioScheduler(context!!,portfolioAdapter,stockTradesList)
+                var portfolioScheduler = PortfolioScheduler(context!!,portfolioAdapter,stockTradesList, cookie!!)
                 timer.scheduleAtFixedRate(portfolioScheduler, 100,3000)
             }
             override fun onCancelled(error: DatabaseError) {
@@ -74,6 +86,8 @@ class PortfolioFragment : Fragment() {
 
         firebaseUser = FirebaseAuth.getInstance().currentUser
         refUsers = FirebaseDatabase.getInstance().reference.child("Trades").child(firebaseUser!!.uid)
+
+
         refUsers?.addValueEventListener(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 var stockTradesList = ArrayList<StockTradeDataItem>()
@@ -84,7 +98,7 @@ class PortfolioFragment : Fragment() {
                     Log.i("tradesData on Resume",tradeData?.purchasedAt.toString())
                     stockTradesList.add(tradeData!!)
                 }
-                val portfolioAdapter = PortfolioAdapter(context!!,stockTradesList!!)
+                val portfolioAdapter = PortfolioAdapter(context!!,stockTradesList!!,cookie!!)
                 portfolioRecyclerView?.adapter = portfolioAdapter
                 portfolioAdapter.notifyDataSetChanged()
             }
@@ -93,6 +107,38 @@ class PortfolioFragment : Fragment() {
         })
 
         super.onResume()
+    }
+
+    fun getCookieFromRequest(): String{
+        var cookie = ""
+
+        var cookieResponse = nseApi.getCookieRequest()
+
+        cookieResponse.enqueue(object : Callback<Any> {
+            override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                Log.i("Headers",response.headers().toString())
+                if (!response.headers().get("Set-Cookie")?.isEmpty()!!) {
+
+                    var headers = response.headers()
+
+                    for(i in headers.toMultimap()){
+                        if(i.key.lowercase().equals("set-cookie")){
+                            cookie = cookie + i.value
+                        }
+                    }
+
+//                    cookie = response.headers().get("Set-Cookie").toString()
+                    Log.i("Got the cookie from the request",cookie!!)
+                }
+            }
+
+            override fun onFailure(call: Call<Any>, t: Throwable) {
+                Log.i("request initial",call.request().toString())
+                Log.e("An exception occured initial",t.toString())
+            }
+        })
+
+        return cookie
     }
 
 }

@@ -20,6 +20,7 @@ class StockTradeDataItem {
     var status: String = ""
     var stockSymbol: String = ""
     var uid: String = ""
+    var currentPrice = 0.0
 
     constructor()
 
