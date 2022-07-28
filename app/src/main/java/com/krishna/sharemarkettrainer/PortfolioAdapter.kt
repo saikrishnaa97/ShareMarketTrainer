@@ -7,14 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.github.pnpninja.nsetools.NSETools
+import okhttp3.ResponseBody
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.math.RoundingMode
 import java.text.DecimalFormat
-import android.os.AsyncTask
-import com.github.pnpninja.nsetools.domain.StockQuote
 
 
 class PortfolioAdapter(context: Context, stockTradeDataList: List<StockTradeDataItem>, cookie: String) : RecyclerView.Adapter<PortfolioAdapter.ViewHolder?>() {
@@ -23,6 +24,8 @@ class PortfolioAdapter(context: Context, stockTradeDataList: List<StockTradeData
     private val stockTradeDataList : List<StockTradeDataItem>
     var cookie : String
     val nseApi = NSERetrofitHelper.getInstance().create(NSEStockRestClient::class.java)
+    val bseApi = BSERetrofitHelper.getInstance().create(BSERestClient::class.java)
+    val myData = mutableListOf<StockTradeDataItem>()
 
     init {
         this.context = context
@@ -45,67 +48,41 @@ class PortfolioAdapter(context: Context, stockTradeDataList: List<StockTradeData
         }
     }
 
+    fun submitList(newData: List<StockTradeDataItem>){
+        Log.i("Adapter refreshed with data",newData.toString())
+        myData.clear()
+        myData.addAll(newData)
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: View = LayoutInflater.from(context).inflate(R.layout.portfolio_item_layout,parent, false)
         return PortfolioAdapter.ViewHolder(view)
-    }
-
-    fun getCookieFromRequest(){
-        var cookieResponse = nseApi.getCookieRequest()
-
-        cookieResponse.enqueue(object : Callback<Any> {
-            override fun onResponse(call: Call<Any>, response: Response<Any>) {
-                if (!response.headers().get("Set-Cookie")?.isEmpty()!!) {
-                    cookie = response.headers().get("Set-Cookie").toString()
-                    Log.i("Got the cookie from the request",cookie!!)
-                }
-            }
-
-            override fun onFailure(call: Call<Any>, t: Throwable) {
-                Log.i("request",call.toString())
-                Log.e("An exception occured in getCookie",t.toString())
-            }
-        })
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.cost_portfolio.text = "Avg. Cost\n Rs."+stockTradeDataList?.get(position)?.purchasedAt.toString()
         holder.stock_name_portfolio.text = stockTradeDataList?.get(position)?.stockSymbol.toString()
 
-        val stockDataResponse = nseApi.getStockStatus(stockTradeDataList?.get(position)?.stockSymbol!!,cookie)
-
-        stockDataResponse.enqueue(object: Callback<NSEStockStatus> {
-            override fun onResponse(
-                call: Call<NSEStockStatus>,
-                response: Response<NSEStockStatus>
-            ) {
-                if (response.code() != 200){
-                    getCookieFromRequest()
-                }
-                    var responseBody = response.body()
-                    Log.i("Response Code",response.code().toString())
-                    Log.i("Response Url",response.raw().request().url().toString())
-                    Log.i("Response",responseBody.toString())
-                    try {
-                        val df = DecimalFormat("#.##")
-                        df.roundingMode = RoundingMode.DOWN
-                        var percentChange = 100*(responseBody?.priceInfo?.lastPrice?.minus(
-                            stockTradeDataList?.get(position)?.purchasedAt
-                        ))?.div(stockTradeDataList?.get(position)?.purchasedAt)!!
-
-                        val roundoff = df.format(percentChange)
-                        holder.current_price_portfolio.text =
-                            "Cur Price\n Rs. " + responseBody?.priceInfo?.lastPrice?.toString()
-                        holder.percent_change_portfolio.text = "% Change\n " + roundoff.toString()+"%"
-                    }
-                    catch (e: Exception){
-                        holder.current_price_portfolio.text =
-                            "Cur Price\n Rs. " + stockTradeDataList?.get(position)?.purchasedAt.toString()
-                        holder.percent_change_portfolio.text = "% Change\n 0%"
-                    }
+        var stockDataResponse = bseApi.getBSEStockData(0,"","","",stockTradeDataList.get(position).SCRIP)
+        stockDataResponse.enqueue(object: Callback<BSEStockData>{
+            override fun onResponse(call: Call<BSEStockData>, response: Response<BSEStockData>) {
+                var responseBody = response.body()
+                var curPrice = responseBody?.CurrVal?.toDouble()
+                val df = DecimalFormat("#.##")
+                df.roundingMode = RoundingMode.DOWN
+                var percentChange = 100*(curPrice?.minus(
+                    stockTradeDataList?.get(position)?.purchasedAt
+                ))?.div(stockTradeDataList?.get(position)?.purchasedAt)!!
+                val roundoff = df.format(percentChange)
+                holder.current_price_portfolio.text =
+                    "Cur Price\n Rs. " + curPrice?.toString()
+                holder.percent_change_portfolio.text = "% Change\n " + roundoff.toString()+"%"
             }
-            override fun onFailure(call: Call<NSEStockStatus>, t: Throwable) {
-                Log.d("TAG","Error Response = "+t.toString());
+
+            override fun onFailure(call: Call<BSEStockData>, t: Throwable) {
+                Log.i("BSE StockData Request Details for "+stockTradeDataList.get(position).stockSymbol,call.request().toString())
+                Log.e("Request Failed",t.stackTraceToString())
             }
         })
     }

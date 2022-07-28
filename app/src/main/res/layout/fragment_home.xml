@@ -85,7 +85,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/linear_layout_changers"
-        android:layout_marginTop="8dp"
+        android:layout_margin="8dp"
         android:id="@+id/rec_layout_changers"/>
 
 </RelativeLayout>

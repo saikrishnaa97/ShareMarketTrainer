@@ -8,12 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import okhttp3.ResponseBody
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -38,7 +39,6 @@ class PortfolioFragment : Fragment() {
     var inflater: LayoutInflater? = null
     var container : ViewGroup? = null
     var cookie : String? = ""
-    val nseApi = NSERetrofitHelper.getInstance().create(NSEStockRestClient::class.java)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,10 +52,46 @@ class PortfolioFragment : Fragment() {
         refUsers = FirebaseDatabase.getInstance().reference.child("Trades").child(firebaseUser!!.uid)
 
 
-        //get cookie
-        if (cookie.equals("")){
-            cookie = getCookieFromRequest()
-        }
+        //Added temp searchLogic for scripCodes from BSE
+        val bseApi = BSERetrofitHelper.getInstance().create(BSERestClient::class.java)
+        var tmp = bseApi.searchBSEStock("EQ","PAYTM","nw")
+        tmp.enqueue(object: Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                try {
+                    val html = response.body()!!.string()
+                    val document: Document = Jsoup.parse(html)
+                    val elements: Elements = document.getElementsByClass("quotemenu")
+                    var bseSearchResultList = ArrayList<BSESearchResult>()
+                    for (element in elements) {
+                        var bseSearchResult = BSESearchResult()
+                        var elementText = ""
+                        var i = 0
+                        while(i < element.childNodeSize()){
+                            var e = element.child(i)
+                            elementText = e.text()
+                            if(elementText.contains("matches found")){
+                                elementText =
+                                    e.text().split(" ").subList(0,e.text().split(" ").size - 3).toList().toString()
+                            }
+                            i++
+                        }
+                        var elementList = elementText.split(" ")
+                        bseSearchResult.SCRIPCode = elementList.get(elementList.size -1).split("   ").get(elementList.get(elementList.size -1)
+                            .split("   ").size -1).split(']').get(0).toInt()
+                        bseSearchResult.StockSymbol= elementList.get(elementList.size -1).split("   ").get(elementList.get(elementList.size -1)
+                            .split("   ").size -3)
+                        bseSearchResultList.add(bseSearchResult)
+                    }
+                    Log.i("BseSearchResultList", bseSearchResultList.toString())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                TODO("Not yet implemented")
+            }
+        })
 
         refUsers?.addValueEventListener(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -71,7 +107,7 @@ class PortfolioFragment : Fragment() {
                 portfolioRecyclerView.adapter = portfolioAdapter
                 val timer = Timer()
                 var portfolioScheduler = PortfolioScheduler(context!!,portfolioAdapter,stockTradesList, cookie!!)
-                timer.scheduleAtFixedRate(portfolioScheduler, 100,3000)
+                timer.scheduleAtFixedRate(portfolioScheduler, 100,10000)
             }
             override fun onCancelled(error: DatabaseError) {
             }
@@ -95,7 +131,7 @@ class PortfolioFragment : Fragment() {
                     val tradeData = data.getValue(StockTradeDataItem::class.java)
                     val linearLayoutManager = LinearLayoutManager(context)
                     portfolioRecyclerView?.layoutManager = linearLayoutManager
-                    Log.i("tradesData on Resume",tradeData?.purchasedAt.toString())
+                    Log.d("tradesData on Resume",tradeData?.purchasedAt.toString())
                     stockTradesList.add(tradeData!!)
                 }
                 val portfolioAdapter = PortfolioAdapter(context!!,stockTradesList!!,cookie!!)
@@ -107,38 +143,6 @@ class PortfolioFragment : Fragment() {
         })
 
         super.onResume()
-    }
-
-    fun getCookieFromRequest(): String{
-        var cookie = ""
-
-        var cookieResponse = nseApi.getCookieRequest()
-
-        cookieResponse.enqueue(object : Callback<Any> {
-            override fun onResponse(call: Call<Any>, response: Response<Any>) {
-                Log.i("Headers",response.headers().toString())
-                if (!response.headers().get("Set-Cookie")?.isEmpty()!!) {
-
-                    var headers = response.headers()
-
-                    for(i in headers.toMultimap()){
-                        if(i.key.lowercase().equals("set-cookie")){
-                            cookie = cookie + i.value
-                        }
-                    }
-
-//                    cookie = response.headers().get("Set-Cookie").toString()
-                    Log.i("Got the cookie from the request",cookie!!)
-                }
-            }
-
-            override fun onFailure(call: Call<Any>, t: Throwable) {
-                Log.i("request initial",call.request().toString())
-                Log.e("An exception occured initial",t.toString())
-            }
-        })
-
-        return cookie
     }
 
 }

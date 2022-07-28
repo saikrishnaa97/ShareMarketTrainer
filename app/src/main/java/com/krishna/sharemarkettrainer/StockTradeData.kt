@@ -21,6 +21,7 @@ class StockTradeDataItem {
     var stockSymbol: String = ""
     var uid: String = ""
     var currentPrice = 0.0
+    var SCRIP: Int = 0
 
     constructor()
 
@@ -31,7 +32,8 @@ class StockTradeDataItem {
         soldAt: Int,
         status: String,
         stockSymbol: String,
-        uid: String
+        uid: String,
+        SCRIP: Int
     ) {
         this.exchange = exchange
         this.numOfShares = numOfShares
@@ -40,6 +42,11 @@ class StockTradeDataItem {
         this.status = exchange
         this.stockSymbol = stockSymbol
         this.uid = uid
+        this.SCRIP = SCRIP
+    }
+
+    override fun toString(): String {
+        return "StockTradeDataItem(exchange='$exchange', numOfShares=$numOfShares, purchasedAt=$purchasedAt, soldAt=$soldAt, status='$status', stockSymbol='$stockSymbol', uid='$uid', currentPrice=$currentPrice, SCRIP=$SCRIP)"
     }
 
 }

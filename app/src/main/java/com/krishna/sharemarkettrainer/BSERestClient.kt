@@ -1,5 +1,6 @@
 package com.krishna.sharemarkettrainer
 
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -30,4 +31,12 @@ interface BSERestClient {
     )
     @GET("BseIndiaAPI/api/HoTurnover/w")
     fun getTopChangers(@Query("flag") flag : String) : Call<TopChangersList>
+
+
+    @GET("BseIndiaAPI/api/StockReachGraph/w")
+    fun getBSEStockData(@Query("flag") flag: Int, @Query("fromdate") fromDate : String, @Query("todate") toDate: String,
+                        @Query("seriesid") seriesId: String, @Query("scripcode") scripCode: Int): Call<BSEStockData>
+
+    @GET("Msource/1D/getQouteSearch.aspx")
+    fun searchBSEStock(@Query("Type")type: String, @Query("text") text : String, @Query("flag")flag: String): Call<ResponseBody>
 }

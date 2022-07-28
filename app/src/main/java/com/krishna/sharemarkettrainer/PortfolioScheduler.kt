@@ -2,8 +2,7 @@ package com.krishna.sharemarkettrainer
 
 import android.content.Context
 import android.util.Log
-import android.widget.TextView
-import com.github.pnpninja.nsetools.NSETools
+import okhttp3.Cookie
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -12,16 +11,16 @@ import java.text.DecimalFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class PortfolioScheduler(context: Context, adapter: PortfolioAdapter,stockTradeDataList: List<StockTradeDataItem>,
+class PortfolioScheduler(context: Context, adapter: PortfolioAdapter, stockTradeDataList: List<StockTradeDataItem>,
                          cookie: String ) : TimerTask() {
 
     var context: Context
-    var portfolioAdapter : PortfolioAdapter
-    var stockTradeDataList : List<StockTradeDataItem>
+    var portfolioAdapter: PortfolioAdapter
+    var stockTradeDataList: List<StockTradeDataItem>
     var cookie: String
-    val nseApi = NSERetrofitHelper.getInstance().create(NSEStockRestClient::class.java)
+    val bseApi = BSERetrofitHelper.getInstance().create(BSERestClient::class.java)
 
-    init{
+    init {
         this.context = context
         this.portfolioAdapter = adapter
         this.stockTradeDataList = stockTradeDataList
@@ -30,91 +29,33 @@ class PortfolioScheduler(context: Context, adapter: PortfolioAdapter,stockTradeD
 
     override fun run() {
         var tradeDataList = ArrayList<StockTradeDataItem>()
-        for(i in stockTradeDataList){
+        for (i in stockTradeDataList) {
 
-            var stockDataResponse = nseApi.getStockStatus(i.stockSymbol,cookie)
-
-            stockDataResponse.enqueue(object: Callback<NSEStockStatus> {
+            var stockDataResponse = bseApi.getBSEStockData(0, "", "", "", i.SCRIP)
+            stockDataResponse.enqueue(object : Callback<BSEStockData> {
                 override fun onResponse(
-                    call: Call<NSEStockStatus>,
-                    response: Response<NSEStockStatus>
+                    call: Call<BSEStockData>,
+                    response: Response<BSEStockData>
                 ) {
-                    if (response.code() != 200){
-                        getCookieFromRequest()
-                        stockDataResponse = nseApi.getStockStatus(i.stockSymbol,cookie)
-                        stockDataResponse.enqueue(object: Callback<NSEStockStatus> {
-                            override fun onResponse(
-                                call: Call<NSEStockStatus>,
-                                response: Response<NSEStockStatus>
-                            ) {
-                                var responseBody = response.body()
-                                try {
-                                    val df = DecimalFormat("#.##")
-                                    df.roundingMode = RoundingMode.DOWN
-                                    var percentChange = 100*(responseBody?.priceInfo?.lastPrice?.minus(
-                                        i.purchasedAt
-                                    ))?.div(i.purchasedAt)!!
-                                    val roundoff = df.format(percentChange)
-                                    Log.i(i.stockSymbol,responseBody?.priceInfo?.lastPrice.toString())
-                                    i.currentPrice = responseBody?.priceInfo?.lastPrice!!
-                                    tradeDataList.add(i)
-                                }
-                                catch (e: Exception){
-                                    Log.e("An exception occurred inside portfolioScheduler",e.toString())
-                                }
-                            }
-                            override fun onFailure(call: Call<NSEStockStatus>, t: Throwable) {
-                                Log.d("TAG","Error Response = "+t.toString());
-                            }
-                        })
-                    }
                     var responseBody = response.body()
-                    try {
-                        val df = DecimalFormat("#.##")
-                        df.roundingMode = RoundingMode.DOWN
-                        var percentChange = 100*(responseBody?.priceInfo?.lastPrice?.minus(
-                            i.purchasedAt
-                        ))?.div(i.purchasedAt)!!
-                        val roundoff = df.format(percentChange)
-                        Log.i(i.stockSymbol,responseBody?.priceInfo?.lastPrice.toString())
-                        i.currentPrice = responseBody?.priceInfo?.lastPrice!!
-                        tradeDataList.add(i)
-                    }
-                    catch (e: Exception){
-                        Log.e("An exception occurred in portfolioScheduler",e.toString())
-                    }
+                    var curPrice = responseBody?.CurrVal?.toDouble()
+                    i.currentPrice = curPrice!!
                 }
-                override fun onFailure(call: Call<NSEStockStatus>, t: Throwable) {
-                    Log.d("TAG","Error Response = "+t.toString());
+
+                override fun onFailure(call: Call<BSEStockData>, t: Throwable) {
+                    Log.i(
+                        "BSE StockData Request Details for " + i.stockSymbol,
+                        call.request().toString()
+                    )
+                    Log.e("Request Failed", t.stackTraceToString())
                 }
             })
-
+            tradeDataList.add(i)
         }
-        portfolioAdapter = PortfolioAdapter(context!!,tradeDataList!!,cookie!!)
+        Log.i("Refreshed Data", tradeDataList.toString())
+        portfolioAdapter = PortfolioAdapter(context!!, tradeDataList!!, cookie!!)
+        portfolioAdapter.submitList(tradeDataList)
         portfolioAdapter.notifyDataSetChanged()
-    }
-
-    fun getCookieFromRequest(): String{
-        var cookie = ""
-
-        var cookieResponse = nseApi.getCookieRequest()
-
-        cookieResponse.enqueue(object : Callback<Any> {
-            override fun onResponse(call: Call<Any>, response: Response<Any>) {
-                Log.i("Headers",response.headers().toString())
-                if (!response.headers().get("Set-Cookie")?.isEmpty()!!) {
-                    cookie = response.headers().get("Set-Cookie").toString()
-                    Log.i("Got the cookie from the request",cookie!!)
-                }
-            }
-
-            override fun onFailure(call: Call<Any>, t: Throwable) {
-                Log.i("request",call.request().toString())
-                Log.e("An exception occured",t.toString())
-            }
-        })
-
-        return cookie
     }
 
 }

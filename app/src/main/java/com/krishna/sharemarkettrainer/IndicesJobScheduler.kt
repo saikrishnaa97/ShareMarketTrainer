@@ -34,9 +34,9 @@ class IndicesJobScheduler(context: Context, bse_live: TextView, nse_live: TextVi
                 response: Response<BSEStatus>
             ) {
                 var responseBody = response.body()
-                Log.i("Response Code",response.code().toString())
-                Log.i("Response Url",response.raw().request().url().toString())
-                Log.i("Response",responseBody.toString())
+                Log.d("Response Code",response.code().toString())
+                Log.d("Response Url",response.raw().request().url().toString())
+                Log.d("Response",responseBody.toString())
                 for(i in responseBody!!){
                     if (i.indxnm.equals("SenSexValue")){
                         bse_live.text = "Sensex:- "+i.ltp+"\n% Change:- "+i.perchg+"%"
@@ -57,11 +57,11 @@ class IndicesJobScheduler(context: Context, bse_live: TextView, nse_live: TextVi
                 response: Response<NSEStatus>
             ) {
                 var responseBody = response.body()
-                Log.i("Response Code",response.code().toString())
-                Log.i("Response Url",response.raw().request().url().toString())
+                Log.d("Response Code",response.code().toString())
+                Log.d("Response Url",response.raw().request().url().toString())
                 for(i in responseBody?.data!!){
                     if (i.name.equals("NIFTY 50")){
-                        Log.i("Response",i.toString())
+                        Log.d("Response",i.toString())
                         var percChange = ""
                         if (i.pChange.toDouble() > 0){
                             percChange = "+"+i.pChange

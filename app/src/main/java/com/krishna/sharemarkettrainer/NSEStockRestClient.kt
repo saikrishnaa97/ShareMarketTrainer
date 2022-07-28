@@ -52,12 +52,15 @@ interface NSEStockRestClient {
     @GET("/")
     @Headers(
         "Host:www.nseindia.com",
-        "Accept-Language:en-US,en;q=0.5",
+        "accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        "Accept-Language:en-US,en;q=0.9",
         "referer:https://www.nseindia.com/",
         "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36 Edg/95.0.1020.40",
         "X-Requested-With:XMLHttpRequest",
-        "cache-control:max-age=0"
+        "cache-control:max-age=0",
+        "upgrade-insecure-requests: 1",
+        "cookie: RT=\"z=1&dm=nseindia.com&si=1b3226bb-2a4f-45ef-8e98-9a4233728f4f&ss=l64md155&sl=2&tt=5tb&bcn=//684d0d49.akstat.io/&ld=aqs&ul=5kyh\""
     )
-    fun getCookieRequest(): Call<Any>
+    fun getCookieRequest(): Call<Void>
 
 }
