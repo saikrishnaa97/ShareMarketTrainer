@@ -48,5 +48,4 @@ class StockTradeDataItem {
     override fun toString(): String {
         return "StockTradeDataItem(exchange='$exchange', numOfShares=$numOfShares, purchasedAt=$purchasedAt, soldAt=$soldAt, status='$status', stockSymbol='$stockSymbol', uid='$uid', currentPrice=$currentPrice, SCRIP=$SCRIP)"
     }
-
 }

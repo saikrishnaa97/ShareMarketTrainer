@@ -1,11 +1,14 @@
 package com.krishna.sharemarkettrainer
 
+import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.util.AttributeSet
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
@@ -19,7 +22,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
-import kotlin.collections.ArrayList
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -39,6 +41,7 @@ class PortfolioFragment : Fragment() {
     var inflater: LayoutInflater? = null
     var container : ViewGroup? = null
     var cookie : String? = ""
+    var stockTradesList = ArrayList<StockTradeDataItem>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,11 +53,11 @@ class PortfolioFragment : Fragment() {
         var portfolioRecyclerView = view.findViewById<RecyclerView>(R.id.portfolio_recycler)
         firebaseUser = FirebaseAuth.getInstance().currentUser
         refUsers = FirebaseDatabase.getInstance().reference.child("Trades").child(firebaseUser!!.uid)
-
+        var portfolioAdapter = PortfolioAdapter(requireContext(),stockTradesList!!,cookie!!)
 
         //Added temp searchLogic for scripCodes from BSE
         val bseApi = BSERetrofitHelper.getInstance().create(BSERestClient::class.java)
-        var tmp = bseApi.searchBSEStock("EQ","PAYTM","nw")
+        var tmp = bseApi.searchBSEStock("EQ","HDFCBANK","nw")
         tmp.enqueue(object: Callback<ResponseBody>{
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 try {
@@ -95,54 +98,50 @@ class PortfolioFragment : Fragment() {
 
         refUsers?.addValueEventListener(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                var stockTradesList = ArrayList<StockTradeDataItem>()
+                stockTradesList = ArrayList<StockTradeDataItem>()
                 for(data in snapshot.children){
                     val tradeData = data.getValue(StockTradeDataItem::class.java)
-                    val linearLayoutManager = LinearLayoutManager(context)
+                    val linearLayoutManager = LinearLayoutManagerWrapper(context,LinearLayoutManager.VERTICAL, false)
                     portfolioRecyclerView.layoutManager = linearLayoutManager
                     Log.i("tradesData",tradeData.toString())
                     stockTradesList.add(tradeData!!)
+                    portfolioAdapter = PortfolioAdapter(requireContext(),stockTradesList!!,cookie!!)
+                    portfolioRecyclerView.adapter = portfolioAdapter
                 }
-                val portfolioAdapter = PortfolioAdapter(requireContext(),stockTradesList!!,cookie!!)
-                portfolioRecyclerView.adapter = portfolioAdapter
-                val timer = Timer()
-                var portfolioScheduler = PortfolioScheduler(context!!,portfolioAdapter,stockTradesList, cookie!!)
-                timer.scheduleAtFixedRate(portfolioScheduler, 100,10000)
             }
             override fun onCancelled(error: DatabaseError) {
             }
         })
 
+        var handler =  Handler()
+        handler.postDelayed(object: Runnable{
+            override fun run() {
+                portfolioAdapter.submitList(stockTradesList)
+                handler.postDelayed(this, 5000);
+            }
+        },10000)
         return view
     }
+}
 
-    override fun onResume() {
-        var view = inflater?.inflate(R.layout.fragment_portfolio, container, false)
-        var portfolioRecyclerView = view?.findViewById<RecyclerView>(R.id.portfolio_recycler)
-
-        firebaseUser = FirebaseAuth.getInstance().currentUser
-        refUsers = FirebaseDatabase.getInstance().reference.child("Trades").child(firebaseUser!!.uid)
-
-
-        refUsers?.addValueEventListener(object: ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                var stockTradesList = ArrayList<StockTradeDataItem>()
-                for(data in snapshot.children){
-                    val tradeData = data.getValue(StockTradeDataItem::class.java)
-                    val linearLayoutManager = LinearLayoutManager(context)
-                    portfolioRecyclerView?.layoutManager = linearLayoutManager
-                    Log.d("tradesData on Resume",tradeData?.purchasedAt.toString())
-                    stockTradesList.add(tradeData!!)
-                }
-                val portfolioAdapter = PortfolioAdapter(context!!,stockTradesList!!,cookie!!)
-                portfolioRecyclerView?.adapter = portfolioAdapter
-                portfolioAdapter.notifyDataSetChanged()
-            }
-            override fun onCancelled(error: DatabaseError) {
-            }
-        })
-
-        super.onResume()
+class LinearLayoutManagerWrapper : LinearLayoutManager {
+    constructor(context: Context?) : super(context) {}
+    constructor(context: Context?, orientation: Int, reverseLayout: Boolean) : super(
+        context,
+        orientation,
+        reverseLayout
+    ) {
     }
 
+    constructor(
+        context: Context?,
+        attrs: AttributeSet?,
+        defStyleAttr: Int,
+        defStyleRes: Int
+    ) : super(context, attrs, defStyleAttr, defStyleRes) {
+    }
+
+    override fun supportsPredictiveItemAnimations(): Boolean {
+        return false
+    }
 }

@@ -40,6 +40,7 @@ class IndicesJobScheduler(context: Context, bse_live: TextView, nse_live: TextVi
                 for(i in responseBody!!){
                     if (i.indxnm.equals("SenSexValue")){
                         bse_live.text = "Sensex:- "+i.ltp+"\n% Change:- "+i.perchg+"%"
+                        Log.i("Sensex:- ",i.ltp)
                     }
                 }
             }
@@ -73,6 +74,7 @@ class IndicesJobScheduler(context: Context, bse_live: TextView, nse_live: TextVi
                             percChange = i.pChange
                         }
                         nse_live.text = "NIFTY 50:- "+i.lastPrice+"\n% Change:- "+percChange+"%"
+                        Log.i("NIFTY 50:- ",i.lastPrice)
                     }
                 }
             }

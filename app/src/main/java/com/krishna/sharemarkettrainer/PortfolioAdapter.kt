@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
@@ -23,9 +25,7 @@ class PortfolioAdapter(context: Context, stockTradeDataList: List<StockTradeData
     private val context : Context
     private val stockTradeDataList : List<StockTradeDataItem>
     var cookie : String
-    val nseApi = NSERetrofitHelper.getInstance().create(NSEStockRestClient::class.java)
     val bseApi = BSERetrofitHelper.getInstance().create(BSERestClient::class.java)
-    val myData = mutableListOf<StockTradeDataItem>()
 
     init {
         this.context = context
@@ -50,9 +50,7 @@ class PortfolioAdapter(context: Context, stockTradeDataList: List<StockTradeData
 
     fun submitList(newData: List<StockTradeDataItem>){
         Log.i("Adapter refreshed with data",newData.toString())
-        myData.clear()
-        myData.addAll(newData)
-        notifyDataSetChanged()
+        this.notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -62,12 +60,13 @@ class PortfolioAdapter(context: Context, stockTradeDataList: List<StockTradeData
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.cost_portfolio.text = "Avg. Cost\n Rs."+stockTradeDataList?.get(position)?.purchasedAt.toString()
-        holder.stock_name_portfolio.text = stockTradeDataList?.get(position)?.stockSymbol.toString()
-
+        holder.stock_name_portfolio.text = stockTradeDataList?.get(position)?.stockSymbol.toString() + " x "+
+                stockTradeDataList?.get(position).numOfShares
         var stockDataResponse = bseApi.getBSEStockData(0,"","","",stockTradeDataList.get(position).SCRIP)
         stockDataResponse.enqueue(object: Callback<BSEStockData>{
             override fun onResponse(call: Call<BSEStockData>, response: Response<BSEStockData>) {
                 var responseBody = response.body()
+                Log.i(stockTradeDataList.get(position).stockSymbol,responseBody?.CurrVal.toString())
                 var curPrice = responseBody?.CurrVal?.toDouble()
                 val df = DecimalFormat("#.##")
                 df.roundingMode = RoundingMode.DOWN
