@@ -12,7 +12,9 @@
         android:id="@+id/live_indices"
         android:layout_marginTop="4dp"
         android:orientation="horizontal">
-
+        <ImageView
+            android:layout_width="5dp"
+            android:layout_height="match_parent"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -28,18 +30,6 @@
         <ImageView
             android:layout_width="5dp"
             android:layout_height="match_parent"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="SENSEX"
-            android:id="@+id/bse_live"
-            android:textSize="20dp"
-            android:layout_weight="1"
-            android:weightSum="2"
-            android:textColor="@android:color/holo_orange_dark"
-            android:gravity="center"
-            android:background="@color/teal_200"/>
 
     </LinearLayout>
 

@@ -1,5 +1,6 @@
 package com.krishna.sharemarkettrainer
 
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -21,6 +22,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import com.krishna.sharemarkettrainer.domain.SearchResponseData
+import com.krishna.sharemarkettrainer.restclient.SMTRestClient
+import com.krishna.sharemarkettrainer.restclient.SMTRetrofitHelper
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -53,6 +57,8 @@ class SearchFragment : Fragment() {
         refUsers = FirebaseDatabase.getInstance().reference.child("Users").child(firebaseUser!!.uid)
         var searchText = view?.findViewById<EditText>(R.id.search_text)
         var searchResultRecycler = view?.findViewById<RecyclerView>(R.id.recycler_view_search)
+        var progressDialog =  ProgressDialog(requireContext())
+        progressDialog.setTitle("Share Market Trainer")
         refUsers?.addValueEventListener(object: ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 val user = snapshot.getValue(Users::class.java)
@@ -66,14 +72,19 @@ class SearchFragment : Fragment() {
         var searchBtn = view?.findViewById<Button>(R.id.search_btn)
         searchBtn?.setOnClickListener({
             searchString = searchText?.text.toString()
-            val nseApi = NSERetrofitHelper.getInstance().create(NSEStockRestClient::class.java)
+            Log.i("Search Query",searchString)
+//            val nseApi = NSERetrofitHelper.getInstance().create(NSEStockRestClient::class.java)
+//
+//            val stockSearchResult = nseApi.searchStock(searchString)
 
-            val stockSearchResult = nseApi.searchStock(searchString)
-
-            stockSearchResult.enqueue(object: Callback<StockSearchResult>{
+            val smtApi = SMTRetrofitHelper.getInstance().create(SMTRestClient::class.java)
+            val stockSearchResult = smtApi.getSearchData(searchString)
+            progressDialog.setMessage("Searching for "+searchString+", please wait")
+            progressDialog.show()
+            stockSearchResult.enqueue(object: Callback<SearchResponseData>{
                 override fun onResponse(
-                    call: Call<StockSearchResult>,
-                    response: Response<StockSearchResult>
+                    call: Call<SearchResponseData>,
+                    response: Response<SearchResponseData>
                 ) {
                     var responseBody = response.body()
                     Log.i("Response Code",response.code().toString())
@@ -82,16 +93,17 @@ class SearchFragment : Fragment() {
                     try{
                         var linearLayoutManager  = LinearLayoutManager(context)
                         searchResultRecycler?.layoutManager = linearLayoutManager
-                        var recyclerViewAdapter = SearchResultAdapter(context!!,responseBody?.symbols!!)
+                        var recyclerViewAdapter = SearchResultAdapter(context!!,responseBody?.data!!)
                         searchResultRecycler?.adapter = recyclerViewAdapter
                     }
                     catch(e : Exception){
                         Toast.makeText(context,"An error occured while fetch stock details",Toast.LENGTH_SHORT).show()
                         Log.e("An Exception occured",e.toString())
                     }
+                    progressDialog.cancel()
                 }
 
-                override fun onFailure(call: Call<StockSearchResult>, t: Throwable) {
+                override fun onFailure(call: Call<SearchResponseData>, t: Throwable) {
                     Log.d("TAG","Error Response = "+t.toString());
                 }
             })

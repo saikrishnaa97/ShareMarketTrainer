@@ -1,5 +1,6 @@
 package com.krishna.sharemarkettrainer
 
+import android.app.ProgressDialog
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.ComponentName
@@ -20,6 +21,9 @@ import androidx.viewpager2.widget.ViewPager2
 import androidx.work.*
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.krishna.sharemarkettrainer.domain.TopChangersData
+import com.krishna.sharemarkettrainer.restclient.SMTRestClient
+import com.krishna.sharemarkettrainer.restclient.SMTRetrofitHelper
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -48,71 +52,79 @@ class HomeFragment : Fragment() {
         var losers_btn = view.findViewById<TextView>(R.id.losers_btn)
         var changeRecyclerView = view.findViewById<RecyclerView>(R.id.rec_layout_changers)
         var nse_live = view.findViewById<TextView>(R.id.nse_live)
-        var bse_live = view.findViewById<TextView>(R.id.bse_live)
+//        var bse_live = view.findViewById<TextView>(R.id.bse_live)
 
+        val progressDialog =  ProgressDialog(requireContext())
+        progressDialog.setTitle("Share Market Trainer")
         // Update topChangers
         val linearLayoutManager = LinearLayoutManager(context)
         changeRecyclerView.layoutManager = linearLayoutManager
-        getGainers(changeRecyclerView)
+        getGainers(changeRecyclerView,progressDialog)
 
         gainers_btn.setOnClickListener({
-            getGainers(changeRecyclerView)
+            getGainers(changeRecyclerView,progressDialog)
         })
 
         losers_btn.setOnClickListener({
-            getLosers(changeRecyclerView)
+            getLosers(changeRecyclerView,progressDialog)
         })
 
         //Update live indices
         val timer = Timer()
-        val updateLiveIndicesTask = IndicesJobScheduler(requireContext(),bse_live,nse_live)
+        val updateLiveIndicesTask = IndicesJobScheduler(requireContext(),nse_live)
         timer.scheduleAtFixedRate(updateLiveIndicesTask, 500,10000)
 
         return view
     }
 
-    fun getGainers(changeRecyclerView: RecyclerView){
-        val bseApi = BSERetrofitHelper.getInstance().create(BSERestClient::class.java)
+    fun getGainers(changeRecyclerView: RecyclerView,progressDialog: ProgressDialog){
 
-        val gainersResponse = bseApi.getTopChangers("G")
-        gainersResponse.enqueue(object: Callback<TopChangersList> {
+        val smtDataApi = SMTRetrofitHelper.getInstance().create(SMTRestClient::class.java)
+        val gainersResponse = smtDataApi.getTopGainers()
+        progressDialog.setMessage("Top Gainers data is loading, please wait")
+        progressDialog.show()
+        gainersResponse.enqueue(object: Callback<TopChangersData> {
             override fun onResponse(
-                call: Call<TopChangersList>,
-                response: Response<TopChangersList>
+                call: Call<TopChangersData>,
+                response: Response<TopChangersData>
             ) {
                 var responseBody = response.body()
                 Log.i("Response Code",response.code().toString())
                 Log.i("Response Url",response.raw().request().url().toString())
                 Log.i("Response",responseBody.toString())
-                var changeAdapter = ChangersAdapter(requireContext(),responseBody?.Table!!)
+                var changeAdapter = ChangersAdapter(requireContext(),responseBody?.data!!)
                 changeRecyclerView?.adapter = changeAdapter
                 changeRecyclerView?.adapter?.notifyDataSetChanged()
+                progressDialog.cancel()
             }
-            override fun onFailure(call: Call<TopChangersList>, t: Throwable) {
-                Log.d("TAG","Error Response = "+t.toString());
+            override fun onFailure(call: Call<TopChangersData>, t: Throwable) {
+                Log.d("TAG","Gainers Error Response = "+t.toString());
             }
         })
     }
 
-    fun getLosers(changeRecyclerView: RecyclerView){
-        val bseApi = BSERetrofitHelper.getInstance().create(BSERestClient::class.java)
-        val gainersResponse = bseApi.getTopChangers("L")
-        gainersResponse.enqueue(object: Callback<TopChangersList> {
+    fun getLosers(changeRecyclerView: RecyclerView,progressDialog: ProgressDialog){
+        val smtDataApi = SMTRetrofitHelper.getInstance().create(SMTRestClient::class.java)
+        val gainersResponse = smtDataApi.getTopLosers()
+        progressDialog.setMessage("Top Losers data is loading, please wait")
+        progressDialog.show()
+        gainersResponse.enqueue(object: Callback<TopChangersData> {
             override fun onResponse(
-                call: Call<TopChangersList>,
-                response: Response<TopChangersList>
+                call: Call<TopChangersData>,
+                response: Response<TopChangersData>
             ) {
                 var responseBody = response.body()
                 Log.i("Response Code",response.code().toString())
                 Log.i("Response Url",response.raw().request().url().toString())
                 Log.i("Response",responseBody.toString())
-                var changeAdapter = ChangersAdapter(requireContext(),responseBody?.Table!!)
+                var changeAdapter = ChangersAdapter(requireContext(),responseBody?.data!!)
                 changeRecyclerView?.adapter = changeAdapter
                 changeRecyclerView?.adapter?.notifyDataSetChanged()
+                progressDialog.cancel()
             }
 
-            override fun onFailure(call: Call<TopChangersList>, t: Throwable) {
-                Log.d("TAG","Error Response = "+t.toString());
+            override fun onFailure(call: Call<TopChangersData>, t: Throwable) {
+                Log.d("TAG","Losers Error Response = "+t.toString());
             }
         })
     }

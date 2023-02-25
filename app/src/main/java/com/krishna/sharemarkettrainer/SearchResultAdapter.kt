@@ -8,11 +8,12 @@ import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.krishna.sharemarkettrainer.domain.ResultData
 
-class SearchResultAdapter(context: Context, stocksList: List<Symbol>) : RecyclerView.Adapter<SearchResultAdapter.ViewHolder?>() {
+class SearchResultAdapter(context: Context, stocksList: List<ResultData>) : RecyclerView.Adapter<SearchResultAdapter.ViewHolder?>() {
 
     private val context: Context
-    private val stocksList: List<Symbol>
+    private val stocksList: List<ResultData>
 
     init{
         this.context = context
@@ -23,13 +24,13 @@ class SearchResultAdapter(context: Context, stocksList: List<Symbol>) : Recycler
 
         var stockSymbol: TextView
         var stockCompanyName: TextView
-        var category: TextView
+//        var category: TextView
         var searchResultLayout: RelativeLayout
 
         init {
             stockSymbol = itemView.findViewById(R.id.stock_symbol_text)
             stockCompanyName = itemView.findViewById(R.id.stock_company_name)
-            category = itemView.findViewById(R.id.category)
+//            category = itemView.findViewById(R.id.category)
             searchResultLayout = itemView.findViewById(R.id.search_rel_layout)
         }
 
@@ -41,10 +42,10 @@ class SearchResultAdapter(context: Context, stocksList: List<Symbol>) : Recycler
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val stockData: Symbol = stocksList[position]
-        holder.category.text = stockData.result_sub_type
+        val stockData: ResultData = stocksList[position]
+//        holder.category.text = stockData.result_sub_type
         holder.stockSymbol.text = stockData.symbol
-        var stockSymbolText = stockData.symbol_info
+        var stockSymbolText = stockData.name
 
         if (stockSymbolText.length > 25){
             stockSymbolText = stockSymbolText.subSequence(0,24).toString().plus("...")

@@ -14,6 +14,19 @@
         android:layout_marginLeft="8dp"
         android:id="@+id/stock_name_portfolio"
         />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:id="@+id/total_cost"
+        android:text="Rs. 10000"
+        android:textColor="@color/white"
+        android:layout_alignParentRight="true"
+        android:textSize="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        />
+
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="2dp"
@@ -90,6 +103,58 @@
         android:layout_height="2dp"
         android:layout_marginTop="2dp"
         android:background="@color/white"
+        android:layout_below="@id/portfolio_item_detail_layout"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
         android:layout_below="@id/portfolio_item_detail_layout"
-        />
+        android:id="@+id/gtt_details"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:id="@+id/stoploss_price"
+            android:layout_below="@id/stock_name_portfolio"
+            android:layout_toRightOf="@id/partition_1"
+            android:layout_marginTop="4dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            android:text="StopLoss\nRs. 35"
+            android:textSize="24dp"
+            android:textColor="@color/white"
+            />
+
+        <ImageView
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:id="@+id/partition_9"
+            android:layout_below="@id/stock_name_portfolio"
+            android:layout_toRightOf="@id/cost_portfolio"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:id="@+id/target_price"
+            android:layout_below="@id/stock_name_portfolio"
+            android:layout_toRightOf="@id/partition_2"
+            android:layout_marginTop="4dp"
+            android:text="Target Price\n+Rs. 80"
+            android:textSize="24dp"
+            android:textColor="@color/white"
+            />
+
+    </LinearLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="2dp"
+        android:background="@color/white"
+        android:layout_below="@id/gtt_details"/>
 </RelativeLayout>

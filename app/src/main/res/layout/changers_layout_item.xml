@@ -23,15 +23,15 @@
         android:textSize="24dp"
         android:textColor="@color/white" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="32dp"
-        android:id="@+id/price_change"
-        android:text="+Rs. 10"
-        android:layout_below="@id/cur_price_changers"
-        android:layout_marginRight="8dp"
-        android:textSize="24dp"
-        android:textColor="#0F0"/>
+<!--    <TextView-->
+<!--        android:id="@+id/price_change"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="32dp"-->
+<!--        android:layout_below="@id/cur_price_changers"-->
+<!--        android:layout_marginRight="8dp"-->
+<!--        android:text="+Rs. 10"-->
+<!--        android:textColor="#0F0"-->
+<!--        android:textSize="24dp" />-->
 
     <TextView
         android:layout_width="wrap_content"
