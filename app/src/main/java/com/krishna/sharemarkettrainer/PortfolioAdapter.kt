@@ -96,7 +96,8 @@ class PortfolioAdapter(context: Context, stockTradeDataList: List<Portfolio>) : 
 
                 holder.stoploss_price.text = "StopLoss Price\n Rs."+stockTradeDataList?.get(position)?.stopLoss!!
                 holder.target_price.text = "Target Price\n Rs."+stockTradeDataList?.get(position)?.target!!
-                holder.total_cost.text = "Rs. "+(stockTradeDataList?.get(position)?.numOfShares!! * stockTradeDataList?.get(position)?.avgCost!!).toString()
+                val total_cost = df.format(stockTradeDataList?.get(position)?.numOfShares!! * stockTradeDataList?.get(position)?.avgCost!!)
+                holder.total_cost.text = "Rs. "+(total_cost).toString()
 //            }
 //
 //            override fun onFailure(call: Call<BSEStockData>, t: Throwable) {

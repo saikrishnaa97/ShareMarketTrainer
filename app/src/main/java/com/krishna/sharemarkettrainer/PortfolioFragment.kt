@@ -2,6 +2,7 @@ package com.krishna.sharemarkettrainer
 
 import android.app.ProgressDialog
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.util.AttributeSet
@@ -11,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +30,8 @@ import org.jsoup.select.Elements
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -48,6 +52,9 @@ class PortfolioFragment : Fragment() {
     var inflater: LayoutInflater? = null
     var container : ViewGroup? = null
     var stockTradesList = ArrayList<Portfolio>()
+    var total_cost_view : TextView? = null
+    var cur_value_view : TextView? = null
+    var pl_view : TextView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,6 +64,9 @@ class PortfolioFragment : Fragment() {
         this.inflater = inflater
         this.container = container
         var portfolioRecyclerView = view.findViewById<RecyclerView>(R.id.portfolio_recycler)
+        total_cost_view = view.findViewById(R.id.total_cost)
+        cur_value_view = view.findViewById(R.id.current_value)
+        pl_view = view.findViewById(R.id.profit_loss)
         firebaseUser = FirebaseAuth.getInstance().currentUser
         refUsers = FirebaseDatabase.getInstance().reference.child("Trades").child(firebaseUser!!.uid)
         reloadPortfolio(firebaseUser?.uid!!,portfolioRecyclerView)
@@ -152,15 +162,38 @@ class PortfolioFragment : Fragment() {
         smtClient.enqueue(object: Callback<PortfolioData>{
             override fun onResponse(call: Call<PortfolioData>, response: Response<PortfolioData>) {
                 var responseBody = response.body()
+                var total_cost = 0.0
+                var cur_value = 0.0
                 stockTradesList = ArrayList<Portfolio>()
                 Log.i("Response Code",response.code().toString())
                 Log.i("Response Url",response.raw().request().url().toString())
                 Log.i("Response",responseBody.toString())
                 stockTradesList = ArrayList(responseBody?.portfolio!!)
-                var portfolioAdapter = PortfolioAdapter(requireContext(),responseBody?.portfolio!!)
+                var portfolioAdapter = PortfolioAdapter(requireContext(),stockTradesList)
                 val linearLayoutManager = LinearLayoutManagerWrapper(context,LinearLayoutManager.VERTICAL, false)
                 portfolioRecyclerView.layoutManager = linearLayoutManager
                 portfolioRecyclerView.adapter = portfolioAdapter
+
+                stockTradesList.forEach{
+                        total_cost += (it.avgCost * it.numOfShares)
+                        cur_value += (it.ltp * it.numOfShares)
+                }
+                val df = DecimalFormat("#.##")
+                df.roundingMode = RoundingMode.DOWN
+
+
+                total_cost_view?.text = "Total Cost :- \nRS. "+df.format(total_cost).toString()
+                cur_value_view?.text = "Current Value :- \nRS. "+df.format(cur_value).toString()
+                pl_view?.text = "P&L :- \nRS. "+df.format(cur_value - total_cost).toString()
+
+                if (cur_value > total_cost){
+                    cur_value_view?.setTextColor(Color.GREEN)
+                    pl_view?.setTextColor(Color.GREEN)
+                }
+                else {
+                    cur_value_view?.setTextColor(Color.RED)
+                    pl_view?.setTextColor(Color.RED)
+                }
                 progressDialog.cancel()
             }
 
