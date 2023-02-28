@@ -145,7 +145,8 @@ class PortfolioFragment : Fragment() {
 //        },10000)
 
         val timer = Timer()
-        val updateLiveIndicesTask = PortfolioJobScheduler(requireContext(),portfolioAdapter,portfolioRecyclerView,firebaseUser?.uid!!)
+        val updateLiveIndicesTask = PortfolioJobScheduler(requireContext(),portfolioAdapter,portfolioRecyclerView,
+            firebaseUser?.uid!!,total_cost_view!!,cur_value_view!!, pl_view!!)
         timer.scheduleAtFixedRate(updateLiveIndicesTask, 500,10000)
 
         return view

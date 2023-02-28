@@ -72,9 +72,9 @@ class IndicesJobScheduler(context: Context, nse_live: TextView) : TimerTask() {
                         if (responseBody?.pChange?.toDouble()!! > 0){
                             percChange = "+"+responseBody?.pChange
                         }
-                        else if(responseBody?.pChange?.toDouble()!! < 0){
-                            percChange = "-"+responseBody?.pChange
-                        }
+//                        else if(responseBody?.pChange?.toDouble()!! < 0){
+//                            percChange = "-"+responseBody?.pChange
+//                        }
                         else {
                             percChange = responseBody?.pChange!!
                         }

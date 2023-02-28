@@ -6,6 +6,7 @@ class Users {
     private var name: String = ""
     private var email: String = ""
     private var availableBalance: Int = 0
+    private var lastUpdatedTimestamp: Int = 0
 
     constructor()
 
@@ -13,12 +14,14 @@ class Users {
         uid: String,
         name: String,
         email: String,
-        availableBalance: Int
+        availableBalance: Int,
+        lastUpdatedTimestamp: Int
     ) {
         this.uid = uid
         this.name = name
         this.email = email
         this.availableBalance = availableBalance
+        this.lastUpdatedTimestamp = lastUpdatedTimestamp
     }
 
     fun getUid(): String?{
@@ -51,6 +54,14 @@ class Users {
 
     fun setAvailableBalance(availableBalance: Int) {
         this.availableBalance = availableBalance
+    }
+
+    fun getLastUpdatedTimestamp(): Int?{
+        return this.lastUpdatedTimestamp
+    }
+
+    fun setLastUpdatedTimestamp(lastUpdatedTimestamp: Int) {
+        this.lastUpdatedTimestamp = lastUpdatedTimestamp
     }
 
 }
