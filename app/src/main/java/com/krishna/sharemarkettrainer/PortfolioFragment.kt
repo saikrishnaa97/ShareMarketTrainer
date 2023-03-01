@@ -147,7 +147,7 @@ class PortfolioFragment : Fragment() {
         val timer = Timer()
         val updateLiveIndicesTask = PortfolioJobScheduler(requireContext(),portfolioAdapter,portfolioRecyclerView,
             firebaseUser?.uid!!,total_cost_view!!,cur_value_view!!, pl_view!!)
-        timer.scheduleAtFixedRate(updateLiveIndicesTask, 500,10000)
+        timer.scheduleAtFixedRate(updateLiveIndicesTask, 3000,60000)
 
         return view
     }
@@ -188,11 +188,11 @@ class PortfolioFragment : Fragment() {
                 pl_view?.text = "P&L :- \nRS. "+df.format(cur_value - total_cost).toString()
 
                 if (cur_value > total_cost){
-                    cur_value_view?.setTextColor(Color.GREEN)
+//                    cur_value_view?.setTextColor(Color.GREEN)
                     pl_view?.setTextColor(Color.GREEN)
                 }
                 else {
-                    cur_value_view?.setTextColor(Color.RED)
+//                    cur_value_view?.setTextColor(Color.RED)
                     pl_view?.setTextColor(Color.RED)
                 }
                 progressDialog.cancel()
@@ -200,6 +200,7 @@ class PortfolioFragment : Fragment() {
 
             override fun onFailure(call: Call<PortfolioData>, t: Throwable) {
                 Log.d("TAG","Portfolio Error Response = "+t.toString());
+                progressDialog.cancel()
             }
         })
     }

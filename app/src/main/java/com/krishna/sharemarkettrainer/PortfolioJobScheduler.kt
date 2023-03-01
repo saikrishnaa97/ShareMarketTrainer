@@ -70,11 +70,11 @@ cur_value_view: TextView, pl_view: TextView) : TimerTask() {
                 pl_view?.text = "P&L :- \nRS. "+df.format(cur_value - total_cost).toString()
 
                 if (cur_value > total_cost){
-                    cur_value_view?.setTextColor(Color.GREEN)
+//                    cur_value_view?.setTextColor(Color.GREEN)
                     pl_view?.setTextColor(Color.GREEN)
                 }
                 else {
-                    cur_value_view?.setTextColor(Color.RED)
+//                    cur_value_view?.setTextColor(Color.RED)
                     pl_view?.setTextColor(Color.RED)
                 }
 
