@@ -11,5 +11,6 @@ data class Portfolio(
     val stopLoss: Double,
     val symbol: String,
     val target: Double,
-    val uid: String
+    val uid: String,
+    val status: String = "HELLO"
 )

@@ -176,8 +176,10 @@ class PortfolioFragment : Fragment() {
                 portfolioRecyclerView.adapter = portfolioAdapter
 
                 stockTradesList.forEach{
+                    if(it.status.equals("HOLDING")){
                         total_cost += (it.avgCost * it.numOfShares)
                         cur_value += (it.ltp * it.numOfShares)
+                    }
                 }
                 val df = DecimalFormat("#.##")
                 df.roundingMode = RoundingMode.DOWN

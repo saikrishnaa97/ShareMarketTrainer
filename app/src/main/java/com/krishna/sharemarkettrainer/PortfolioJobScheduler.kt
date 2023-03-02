@@ -59,8 +59,10 @@ cur_value_view: TextView, pl_view: TextView) : TimerTask() {
                 portfolioAdapter.notifyDataSetChanged()
 
                 responseBody?.portfolio!!.forEach{
-                    total_cost += (it.avgCost * it.numOfShares)
-                    cur_value += (it.ltp * it.numOfShares)
+                    if(it.status.equals("HOLDING")){
+                        total_cost += (it.avgCost * it.numOfShares)
+                        cur_value += (it.ltp * it.numOfShares)
+                    }
                 }
                 val df = DecimalFormat("#.##")
                 df.roundingMode = RoundingMode.DOWN
